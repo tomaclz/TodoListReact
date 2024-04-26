@@ -1,103 +1,72 @@
-import {Header} from './assets/pages/header'
-import {AddTodo} from './assets/pages/todo.jsx'
-import {useEffect, useState} from 'react'
-import {toggle} from './assets/components/toggle.js'
+import { Header } from './assets/pages/header';
+import { AddTodo } from './assets/pages/todo.jsx';
+import { useEffect, useReducer, useState } from 'react';
+import { reducer } from './assets/components/reducer.js';
 
+
+
+const ACTIONS = {
+  ADD_TODO: 'add-todo',
+  UPDATE_TODO: 'update-todo',
+  DELETE_TODO: 'delete-todo',
+  CANCEL_TODO: 'cancel-todo',
+  DONE_TODO: 'done-todo',
+  SUPP_DONE: 'supp-done'
+};
 
 
 function App() {
-  const [newTodo, setNewTodo] = toggle(false) //? permet de savoir si il faut rajouter une nouvelle todo ou non
-  const [todos, setTodos] = useState([ //? Tableau des todo, avec leurs etats
+  const [lastTodoId, setLastTodoId] = useState(2);
+  const [newTodo, setNewTodo] = useState(false); // Ajout de newTodo dans l'état local
+  const [state, dispatch] = useReducer(reducer, { todos: [
     {id: 1, title: "Faire la vaisselle", data :"Je dois aller faire la vaisselle demain avant 9h", done: false, editing: false, supp: false , searchVisible: true},
     {id: 2, title: "Faire les courses", data :"Je dois aller faire les courses demain avant 9h", done: false, editing: false, supp: false, searchVisible: true},
-  ]);
-  const [search, setSearch] = useState("") //? Permet de filtrer les todo en fonction de la recherche
+  ] });
+  const [search, setSearch] = useState("");
+  const [filteredTodos, setFilteredTodos] = useState([]);
 
+  useEffect(() => {
+    const filtered = state.todos.filter(todo =>
+      todo.title.toLowerCase().includes(search.toLowerCase())
+    );
+    setFilteredTodos(filtered);
+  }, [search, state.todos]);
 
-
-
-  const saveTodo = (newTodoData) => {//? enregistrement d'une nouvelle todo.
-    if (newTodoData.id !== undefined) {
-      setTodos(todos.map((todo) => todo.id === newTodoData.id ? {...todo, ...newTodoData, editing: !todo.editing, supp: false} : todo));
-    } else {
-      const newTodo = {
-        id: todos.length + 1,
-        title: newTodoData.title,
-        data: newTodoData.data,
-        done: false,
-        editing: false,
-        supp: false,
-        searchVisible: true
-    }
-    setNewTodo(false);
-    setTodos([...todos, newTodo]);
-  }
-    
-  };
-
-
-  function cancel (id) { //? verification s'il sagit d'un cancel de todo ou d'un cancel de l'ajout d'une todo (grace à l'id)
-    if (id !== undefined) {
-      setTodos(todos.map((todo) => todo.id === id ? {...todo, editing: !todo.editing} : todo));
-    } else {
-      setNewTodo(false);
-    }
-    }
-
-
-  const deleteTodo = (id) => { //? Suppression (visuelement) d'une todo
-    setTodos(todos.map((todo) => todo.id === id ? {...todo, supp: !todo.supp} : todo));
-  }
-
-  const editTodo = (id) => { //? Edition d'une todo
-    setTodos(todos.map((todo) => todo.id === id ? {...todo, editing: !todo.editing} : todo));
-  }
-
-  const doneTodo = (id) => { //? Changement de l'état de la todo (done ou pas)
-    setTodos(todos.map((todo) => todo.id === id ? {...todo, done: !todo.done} : todo));
-  }
-
-  const suppDone = () => { //? Suppression de toute les todos check (done)
-    setTodos(todos.map((todo) => todo.done === true ? {...todo, supp: !todo.supp, done: false} : todo));
-  }
-
-
-  useEffect(() => { //? a chaque fois que la recherche change, on filtre les todo en fonction de la recherche
-    setTodos(todos.map((todo) => todo.title.toLowerCase().includes(search.toLowerCase()) ? {...todo, searchVisible: true} : {...todo, searchVisible: false}));
-  }, [search]);
-
-
-  return <section  className ="d-flex align-items-center flex-column pt-5 w-100">
-    {!newTodo && <Header 
-      onSubmitAdd={setNewTodo} 
-      suppDone = {suppDone} 
-      setSearchTerm = {setSearch} />}
-    {newTodo && <Header/>}
-    {todos.filter(todo => !todo.supp && todo.searchVisible).map((todo) => (
-      <AddTodo 
-        key = {todo.id} 
-        title = {todo.title} 
-        data = {todo.data} 
-        isDone = {todo.done} 
-        editing = {todo.editing} 
-        supp = {todo.supp} 
-        id = {todo.id} 
-        save = {saveTodo} 
-        deleteTodo = {deleteTodo} 
-        editTodo = {editTodo} 
-        doneTodo = {doneTodo}
-        cancel = {cancel}
+  return (
+    <section className="d-flex align-items-center flex-column pt-5 w-100">
+      <Header
+        onSubmitAdd={() => setNewTodo(true)} // Utilisation de setNewTodo pour mettre à jour newTodo
+        suppDone={() => dispatch({ type: ACTIONS.SUPP_DONE })}
+        setSearchTerm={setSearch}
       />
-    ))}
-    {newTodo && <AddTodo 
-      editing="true" 
-      save = {saveTodo} 
-      cancel = {cancel}
-      />}
-  </section>
-  
-  
-  
+      {filteredTodos.map((todo) => (
+        <AddTodo
+          key={todo.id}
+          title={todo.title}
+          data={todo.data}
+          isDone={todo.done}
+          editing={todo.editing}
+          id={todo.id}
+          save={(newTodoData) => dispatch({ type: ACTIONS.UPDATE_TODO, payload: newTodoData })}
+          deleteTodo={() => dispatch({ type: ACTIONS.DELETE_TODO, payload: { id: todo.id } })}
+          editTodo={() => dispatch({ type: ACTIONS.UPDATE_TODO, payload: { id: todo.id, editing: true } })}
+          doneTodo={() => dispatch({ type: ACTIONS.DONE_TODO, payload: { id: todo.id } })}
+          cancel={() => dispatch({ type: ACTIONS.UPDATE_TODO, payload: { id: todo.id, editing: false } })}
+        />
+      ))}
+      {newTodo && (
+        <AddTodo
+          editing={true}
+          save={(newTodoData) => {
+            dispatch({ type: ACTIONS.ADD_TODO, payload: { ...newTodoData, id: lastTodoId + 1 } });
+            setLastTodoId(lastTodoId + 1);
+            setNewTodo(false);
+          }}
+          cancel={() => setNewTodo(false)}
+        />
+      )}
+    </section>
+  );
 }
 
-export default App
+export default App;
