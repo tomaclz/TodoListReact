@@ -16,16 +16,16 @@ const ACTIONS = {
 
 
 function App() {
-  const [lastTodoId, setLastTodoId] = useState(2);
-  const [newTodo, setNewTodo] = useState(false); // Ajout de newTodo dans l'état local
+  const [lastTodoId, setLastTodoId] = useState(2); //? J'enregistre le dernier id de todo pour pouvoir incrémenter sans doublons
+  const [newTodo, setNewTodo] = useState(false); //? useState qui permet de savoir si on doit afficher le formulaire d'ajout de todo
   const [state, dispatch] = useReducer(reducer, { todos: [
     {id: 1, title: "Faire la vaisselle", data :"Je dois aller faire la vaisselle demain avant 9h", done: false, editing: false, supp: false , searchVisible: true},
     {id: 2, title: "Faire les courses", data :"Je dois aller faire les courses demain avant 9h", done: false, editing: false, supp: false, searchVisible: true},
   ] });
-  const [search, setSearch] = useState("");
-  const [filteredTodos, setFilteredTodos] = useState([]);
+  const [search, setSearch] = useState(""); //? UseState qui permet de stocker la valeur de l'input de recherche
+  const [filteredTodos, setFilteredTodos] = useState([]); //? UseState qui permet de stocker les todos filtrés
 
-  useEffect(() => {
+  useEffect(() => { //? lorsque la valeur de search change, on filtre les todos pour ne garder que ceux qui contiennent la valeur de search
     const filtered = state.todos.filter(todo =>
       todo.title.toLowerCase().includes(search.toLowerCase())
     );
@@ -35,12 +35,12 @@ function App() {
   return (
     <section className="d-flex align-items-center flex-column pt-5 w-100">
       <Header
-        onSubmitAdd={() => setNewTodo(true)} // Utilisation de setNewTodo pour mettre à jour newTodo
-        suppDone={() => dispatch({ type: ACTIONS.SUPP_DONE })}
-        setSearchTerm={setSearch}
+        onSubmitAdd={() => setNewTodo(true)} //? Utilisation de setNewTodo pour mettre afficher un formulaire d'ajout de todo
+        suppDone={() => dispatch({ type: ACTIONS.SUPP_DONE })} //? Dispatch pour supprimer les todos checked
+        setSearchTerm={setSearch} //? OnChange de l'input de recherche
       />
       {filteredTodos.map((todo) => (
-        <AddTodo
+        <AddTodo //? Je setup AddTodo avec les props nécessaires
           key={todo.id}
           title={todo.title}
           data={todo.data}
@@ -57,7 +57,7 @@ function App() {
       {newTodo && (
         <AddTodo
           editing={true}
-          save={(newTodoData) => {
+          save={(newTodoData) => { //? Lorsque le formulaire d'ajout de todo est soumis, on dispatch une action pour ajouter le todo (pour setup l'id j'utilise le lastTodoId + 1)
             dispatch({ type: ACTIONS.ADD_TODO, payload: { ...newTodoData, id: lastTodoId + 1 } });
             setLastTodoId(lastTodoId + 1);
             setNewTodo(false);
