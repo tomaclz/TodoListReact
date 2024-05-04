@@ -21,7 +21,7 @@ export function reducer(state, action) { //? Fonction reducer qui permet de gér
               title: action.payload.title,
               data: action.payload.data,
               done: false,
-              editing: true,
+              editing: false,
               searchVisible: true
             }
           ]
@@ -58,6 +58,14 @@ export function reducer(state, action) { //? Fonction reducer qui permet de gér
           ...state,
           todos: state.todos.filter((todo) => !todo.done)
         };
+      case ACTIONS.REORDER_TODO: //? recois un nouveau tableau avec les todos dans le nouvelle ordre
+        return {
+          ...state,
+          todos: action.payload
+        };
+        
+      
+      return { ...state, todos: newTodos };
       default:
         return state;
     }

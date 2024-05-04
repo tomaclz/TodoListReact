@@ -2,6 +2,7 @@ import { Header } from './assets/pages/header';
 import { AddTodo } from './assets/pages/todo.jsx';
 import { useEffect, useReducer, useState } from 'react';
 import { reducer } from './assets/components/reducer.js';
+import { Reorder } from "framer-motion"
 
 
 
@@ -32,6 +33,10 @@ function App() {
     setFilteredTodos(filtered);
   }, [search, state.todos]);
 
+
+
+
+  
   return (
     <section className="d-flex align-items-center flex-column pt-5 w-100">
       <Header
@@ -39,7 +44,15 @@ function App() {
         suppDone={() => dispatch({ type: ACTIONS.SUPP_DONE })} //? Dispatch pour supprimer les todos checked
         setSearchTerm={setSearch} //? OnChange de l'input de recherche
       />
+      <Reorder.Group 
+        as="ul"
+        axis='y' 
+        values={state.todos} 
+        onReorder={(data) => {dispatch({ type: ACTIONS.REORDER_TODOS, payload: data });
+        console.log(state.todos)
+  }}  className="w-100 d-flex flex-column align-items-center todo-list list-unstyled">
       {filteredTodos.map((todo) => (
+        <Reorder.Item key={todo.id} value={todo} className='w-50'>
         <AddTodo //? Je setup AddTodo avec les props nécessaires
           key={todo.id}
           title={todo.title}
@@ -53,6 +66,7 @@ function App() {
           doneTodo={() => dispatch({ type: ACTIONS.DONE_TODO, payload: { id: todo.id } })}
           cancel={() => dispatch({ type: ACTIONS.UPDATE_TODO, payload: { id: todo.id, editing: false } })}
         />
+        </Reorder.Item>
       ))}
       {newTodo && (
         <AddTodo
@@ -64,7 +78,11 @@ function App() {
           }}
           cancel={() => setNewTodo(false)}
         />
+        
       )}
+      
+      
+      </Reorder.Group>
     </section>
   );
 }

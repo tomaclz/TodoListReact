@@ -27,7 +27,7 @@ export function AddTodo({ data, title, editing, cancel, save, deleteTodo, id, ed
   };
 
   return (
-    <div className="todo d-flex justify-content-center align-items-center w-75 mt-5">
+    <div className="todo d-flex justify-content-center align-items-center w-10 mt-5">
       <div className={isDone ? 'card border-success w-100' : 'card w-100'}>
         <div className="card-body">
           <div className="d-flex justify-content-between">

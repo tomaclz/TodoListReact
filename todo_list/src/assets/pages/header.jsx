@@ -1,6 +1,6 @@
 export function Header ({onSubmitAdd, suppDone, setSearchTerm}) { //? fonction qui renvoie un header avec un bouton qui permet d'ajouter un todo et un input qui permet de chercher un todo
     return (
-        <header className="w-75">
+        <header className="w-50">
             <nav className="navbar bg-body-tertiary p-3 rounded-4 border border-2">
             <div className="container-fluid">
                 <button onClick={onSubmitAdd} type="button" className="btn btn-primary btn-lg">Ajouter une Todo</button>
