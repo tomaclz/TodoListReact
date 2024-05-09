@@ -27,11 +27,11 @@ export function AddTodo({ data, title, editing, cancel, save, deleteTodo, id, ed
   };
 
   return (
-    <div className="todo d-flex justify-content-center align-items-center w-10 mt-5">
-      <div className={isDone ? 'card border-success w-100' : 'card w-100'}>
+    <div className="border-2 border-zync-100 mt-10">
+      <div className={isDone ? 'border-2 border-rose-600' : 'card w-100'}>
         <div className="card-body">
-          <div className="d-flex justify-content-between">
-            <div className="d-flex ms-4 justify-content-center flex-column align-items-center pe-5 border-end">
+          <div className="flex justify-center items-center">
+            <div className="flex ms-4 justify-center flex-col items-center pe-5 border-r-2">
               {!editing && <h5 className={isDone ? 'card-title text-success' : 'card-title'}>{title}</h5>}
               {editing && <input type="text" className="form-control" defaultValue={title} onChange={(e) => setTitles(e.target.value)} />}
             </div>

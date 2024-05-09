@@ -3,6 +3,7 @@ import { AddTodo } from './assets/pages/todo.jsx';
 import { useEffect, useReducer, useState } from 'react';
 import { reducer } from './assets/components/reducer.js';
 import { Reorder } from "framer-motion"
+import { NewTodo } from './assets/pages/newTodo.jsx';
 
 
 
@@ -38,7 +39,21 @@ function App() {
 
   
   return (
-    <section className="d-flex align-items-center flex-column pt-5 w-100">
+    <div className="flex w-full justify-center items-center h-screen bg-zinc-300 ">
+      {newTodo && (
+        <NewTodo
+            save={(newTodoData) => { //? Lorsque le formulaire d'ajout de todo est soumis, on dispatch une action pour ajouter le todo (pour setup l'id j'utilise le lastTodoId + 1)
+              dispatch({ type: ACTIONS.ADD_TODO, payload: { ...newTodoData, id: lastTodoId + 1 } });
+              setLastTodoId(lastTodoId + 1);
+              setNewTodo(false);
+          }}
+            cancel={() => setNewTodo(false)}
+        />
+        
+      )}
+
+      
+    <section className="flex w-2/3 flex-col justify-top bg-zinc-100 rounded-xl py-10 px-14 shadow-xl h-auto">
       <Header
         onSubmitAdd={() => setNewTodo(true)} //? Utilisation de setNewTodo pour mettre afficher un formulaire d'ajout de todo
         suppDone={() => dispatch({ type: ACTIONS.SUPP_DONE })} //? Dispatch pour supprimer les todos checked
@@ -50,7 +65,7 @@ function App() {
         values={state.todos} 
         onReorder={(data) => {dispatch({ type: ACTIONS.REORDER_TODOS, payload: data });
         console.log(state.todos)
-  }}  className="w-100 d-flex flex-column align-items-center todo-list list-unstyled">
+  }}  className="border bg-zinc-300 pl-8 pr-8 pb-8 mt-10">
       {filteredTodos.map((todo) => (
         <Reorder.Item key={todo.id} value={todo} className='w-50'>
         <AddTodo //? Je setup AddTodo avec les props nécessaires
@@ -68,22 +83,11 @@ function App() {
         />
         </Reorder.Item>
       ))}
-      {newTodo && (
-        <AddTodo
-          editing={true}
-          save={(newTodoData) => { //? Lorsque le formulaire d'ajout de todo est soumis, on dispatch une action pour ajouter le todo (pour setup l'id j'utilise le lastTodoId + 1)
-            dispatch({ type: ACTIONS.ADD_TODO, payload: { ...newTodoData, id: lastTodoId + 1 } });
-            setLastTodoId(lastTodoId + 1);
-            setNewTodo(false);
-          }}
-          cancel={() => setNewTodo(false)}
-        />
-        
-      )}
       
       
       </Reorder.Group>
     </section>
+  </div>
   );
 }
 
